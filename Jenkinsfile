@@ -19,9 +19,28 @@ pipeline {
         }
         stage('Run Container'){
             steps{
+                script{
+                    def containerName = "cognyte-app"
+                    def command = "docker ps -f name=${containerName} -a"
+                    def commandOutput = sh(script: command, returnStdout: true).trim()
+
+                    echo "Command: ${command}"
+                    echo "Output: ${commandOutput}"
+
+                    def isRunning = sh(script: "docker ps -q -f name=${containerName}", returnStdout: true).trim()
+                    if (isRunning) {
+                        echo "Container ${containerName} is running."
+                    } else {
+                        echo "Container ${containerName} is not running."
+                    }
+
+                        if (isRunning) {
+                    // Stop the running container
+                            sh "docker stop ${containerName}"
+                            sh "docker rm ${containerName}"
+                            }
+                }
                 sh '''
-                    docker stop cognyte-app
-                    docker rm cognyte-app
                     docker run -d -p 5000:5000 --name cognyte-app -e FLASK_APP=main.py -e FLASK_RUN_HOST=0.0.0.0 -e FLASK_RUN_PORT=5000 cognyte-app
                 '''
             }
