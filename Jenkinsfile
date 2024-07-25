@@ -47,10 +47,32 @@ pipeline {
         }
         stage('Test Container'){
             steps{
-                sh '''
-                    docker exec cognyte-app python test_app.py
-                '''
-            }
+                script
+                 {
+                    try
+                    {
+                        sh '''
+                        docker exec app python cognyte-app
+                         '''
+                    }
+                    catch (Exception e)
+                    {
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                        // Define the container name
+                         def containerName = "cognyte-app"
+
+                        // Check if the container is running
+                            def isRunning = sh(script: "docker ps --filter 'name=${containerName}' --filter 'status=running' -q", returnStdout: true).trim()
+
+                            if (isRunning)
+                            {
+                                // Stop the running container
+                                sh "docker stop ${containerName}"
+                                sh "docker rm ${containerName}"
+                            }
+                    }
+            }}
         }
         stage('Publish Docker'){
             steps{
