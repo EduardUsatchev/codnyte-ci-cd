@@ -1,0 +1,34 @@
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cognyte-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cognyte-app
+  template:
+    metadata:
+      labels:
+        app: cognyte-app
+    spec:
+      containers:
+      - name: cognyte-app
+        image: a18ab77c4b90/cognyte-app:latest
+        ports:
+        - containerPort: 5000
+---
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cognyte-app-service
+spec:
+  selector:
+    app: cognyte-app
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: NodePort
