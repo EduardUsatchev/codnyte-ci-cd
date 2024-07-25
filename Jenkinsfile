@@ -52,7 +52,7 @@ pipeline {
                     try
                     {
                         sh '''
-                        docker exec app python cognyte-app
+                        docker exec cognyte-app python test_app
                          '''
                     }
                     catch (Exception e)
